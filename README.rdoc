@@ -9,7 +9,7 @@ http://railscasts.com/episodes/135-making-a-gem
 
 == Install
 
-  gem install ryanb-uniquify --source http://gems.github.com
+  gem install uniquify
 
 
 == Usage

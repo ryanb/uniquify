@@ -6,7 +6,7 @@ module Uniquify
   def ensure_unique(name)
     begin
       self[name] = yield
-    end while self.class.exists?(name => self[name])
+    end while self.class.scoped(:conditions => { name => self[name] }).exists?
   end
 
   module ClassMethods

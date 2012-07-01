@@ -6,7 +6,11 @@ module Uniquify
   def ensure_unique(name)
     begin
       self[name] = yield
-    end while self.class.scoped(:conditions => { name => self[name] }).exists?
+    end while uniquify_exists?(name)
+  end
+
+  def uniquify_exists?(name)
+    self.class.scoped(:conditions => { name => self[name] }).exists?
   end
 
   module ClassMethods
@@ -15,7 +19,7 @@ module Uniquify
       options = { :length => 8, :chars => ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a }
       options.merge!(args.pop) if args.last.kind_of? Hash
       args.each do |name|
-        before_validation :on => :create do |record|
+        before_validation :on => :create  do |record|
           if block
             record.ensure_unique(name, &block)
           else
@@ -33,5 +37,23 @@ end
 if defined?(ActiveRecord)
   class ActiveRecord::Base
     include Uniquify
+  end
+end
+
+if defined?(DataMapper)
+  module Uniquify
+    def uniquify_exists?(name)
+      not self.class.all(name => self[name]).empty?
+    end
+
+    module ClassMethods
+      def before_validation options = {}, &block
+        self.class_eval do
+          before :valid? do
+            block.call(self)
+          end
+        end
+      end
+    end
   end
 end

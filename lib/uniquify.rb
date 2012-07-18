@@ -49,7 +49,7 @@ if defined?(DataMapper)
     module ClassMethods
       def before_validation options = {}, &block
         self.class_eval do
-          before :valid? do
+          before :create do
             block.call(self)
           end
         end
